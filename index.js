@@ -6,14 +6,26 @@ const app = express();
 const port = 3000;
 const folderPath = path.join(__dirname, "files");
 
-// checking if the folder exists
+// Checking if the folder exists
 if (!fs.existsSync(folderPath)) {
   fs.mkdirSync(folderPath);
 }
 
 app.use(express.json());
 
-// API endpoint to create a text file - "url/create-file"
+// Root route
+app.get("/", (req, res) => {
+  res.send(
+    "Welcome to the File API. Use POST /create-file to create a file and GET /get-files to list all files."
+  );
+});
+
+// route for /create-file
+app.get("/create-file", (req, res) => {
+  res.send("To create a file, send a POST request to /create-file.");
+});
+
+// API endpoint to create a text file - "POST /create-file"
 app.post("/create-file", (req, res) => {
   const timestamp = new Date();
   const fileName = `${timestamp.toISOString().replace(/:/g, "-")}.txt`;
@@ -28,8 +40,13 @@ app.post("/create-file", (req, res) => {
   });
 });
 
-// API endpoint to retrieve all text files - "url/get-files"
+// Information route for /get-files
 app.get("/get-files", (req, res) => {
+  res.send("To retrieve all files, send a GET request to /get-files.");
+});
+
+// API endpoint to retrieve all text files - "GET /get-files"
+app.get("/files", (req, res) => {
   fs.readdir(folderPath, (err, files) => {
     if (err) {
       console.error("Error reading directory:", err);
@@ -41,9 +58,13 @@ app.get("/get-files", (req, res) => {
   });
 });
 
-// Route handler for the root endpoint "/"
-app.get("/", (req, res) => {
-  res.send("Server is running.");
+// handlingundefined routes
+app.use((req, res) => {
+  res
+    .status(404)
+    .send(
+      "Endpoint not found. Use POST /create-file to create a file and GET /get-files to list all files."
+    );
 });
 
 app.listen(port, () => {
